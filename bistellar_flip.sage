@@ -1,3 +1,4 @@
+from collections import deque
 
 def bistellar_flip(K, F):
     """
@@ -111,7 +112,7 @@ def explore_flip_graph(K, excluded_types=[]):
     """
 
     queue = deque([K])
-    reachable = [K]
+    visited = [K]
 
     while queue:
 
@@ -122,7 +123,7 @@ def explore_flip_graph(K, excluded_types=[]):
                 continue 
             
             try:
-                _, new_complex = bistellar_flip(current, face)
+                new_complex = bistellar_flip(current, face)
             except RuntimeError:
                 # No valid flip at this face for this complex
                 continue
@@ -134,54 +135,25 @@ def explore_flip_graph(K, excluded_types=[]):
             
     return visited
 
-'''
-def explore_flip_graph(K, excluded_types=[]):
-    """
-    Explore all simplicial complexes reachable from K via bistellar flips of types 
-    other than the excluded types (by dimension).
-    
-    Args:
-        K: Simplicial Complex
-        excluded_types: List of integers representing the face dimensions to exclude from flipping.
-    
-    Returns:
-        A list of simplicial complexes (up to combinatorial equivalence) that are reachable.
-    
-    Note:
-        Uses BFS to explore the flip graph. Two complexes are considered equivalent
-        if they have the same f-vector or h-vector.
-    """
-    visited = set()
-    queue = deque([K])
-    reachable = [K]
-    
-    # Convert complex to a canonical form for comparison. Need to work on this further.
-    def complex_signature(C):
-        """Return a hashable signature of a complex for deduplication."""
-        facets = tuple(sorted(tuple(sorted(f)) for f in C.facets()))
-        return facets
-    
-    visited.add(complex_signature(K))
-    
-    while queue:
-        current = queue.popleft()
-        
-        # Try all possible flip dimensions
-        for flip_dim in range(current.dimension() + 1):
-            if flip_dim in excluded_types:
-                continue
-            
-            try:
-                _, new_complex = find_and_flip(current, flip_dim)
-                sig = complex_signature(new_complex)
-                
-                if sig not in visited:
-                    visited.add(sig)
-                    queue.append(new_complex)
-                    reachable.append(new_complex)
-            except RuntimeError:
-                # No valid flip at this dimension for this complex
-                continue
-    
-    return reachable
-'''
+# Examples
+if __name__ == "__main__":
+    # Facet list of the cyclic polytope with d=5 and n=9.
+    facets = [[1, 2, 3, 4, 5], [1, 2, 3, 4, 9], [1, 2, 3, 5, 6],
+            [1, 2, 3, 6, 7], [1, 2, 3, 7, 8], [1, 2, 3, 8, 9],
+            [1, 2, 4, 5, 9], [1, 2, 5, 6, 9], [1, 2, 6, 7, 9], 
+            [1, 2, 7, 8, 9], [1, 3, 4, 5, 6], [1, 3, 4, 6, 7], 
+            [1, 3, 4, 7, 8], [1, 3, 4, 8, 9], [1, 4, 5, 6, 7], 
+            [1, 4, 5, 7, 8], [1, 4, 5, 8, 9], [1, 5, 6, 7, 8], 
+            [1, 5, 6, 8, 9], [1, 6, 7, 8, 9], [2, 3, 4, 5, 9], 
+            [2, 3, 5, 6, 9], [2, 3, 6, 7, 9], [2, 3, 7, 8, 9], 
+            [3, 4, 5, 6, 9], [3, 4, 6, 7, 9], [3, 4, 7, 8, 9], 
+            [4, 5, 6, 7, 9], [4, 5, 7, 8, 9], [5, 6, 7, 8, 9]]
+    P = SimplicialComplex(facets)
+    result = explore_flip_graph(P, [0,4])
+    print(f"Number of reachable complexes (without 0/d-moves): {len(result)}")
+    # This should return 337 PL-spheres of dimension 4 with 9 vertices.
+
+    # Write result in a txt file.
+    with open("4 dimensional PL-spheres with 9 vertices.txt", "w") as f:
+        for index, item in enumerate(result):
+            f.write(f"sphere_{index+1}={item.facets()}\n")
