@@ -1,4 +1,5 @@
 from collections import deque
+import ast
 
 def bistellar_flip(K, F):
     """
@@ -135,8 +136,37 @@ def explore_flip_graph(K, excluded_types=[]):
             
     return visited
 
+def extract_lists_from_file(filepath):
+    """
+    Reads a text file where each line contains a variable assignment 
+    like "P_1 = [[1,2,3,4],...]" and extracts the list part.
+
+    Args:
+        filepath (str): The path to the input text file.
+
+    Returns:
+        list: A list containing the extracted lists from each line.
+    """
+    extracted_data = []
+    with open(filepath, 'r') as file:
+        for line in file:
+            # Remove leading/trailing whitespace and split by '='
+            parts = line.strip().split('=', 1) 
+            if len(parts) == 2:
+                # The second part contains the string representation of the list
+                list_str = parts[1].strip()
+                try:
+                    # Safely evaluate the string to a Python list object
+                    extracted_list = ast.literal_eval(list_str)
+                    if isinstance(extracted_list, (list, set, tuple)):
+                        extracted_data.append(extracted_list)
+                except (ValueError, SyntaxError) as e:
+                    print(f"Error parsing line: '{line.strip()}' - {e}")
+    return extracted_data
+
 # Examples
 if __name__ == "__main__":
+    '''
     # Facet list of the cyclic polytope with d=5 and n=9.
     facets = [[1, 2, 3, 4, 5], [1, 2, 3, 4, 9], [1, 2, 3, 5, 6],
             [1, 2, 3, 6, 7], [1, 2, 3, 7, 8], [1, 2, 3, 8, 9],
@@ -153,7 +183,74 @@ if __name__ == "__main__":
     print(f"Number of reachable complexes (without 0/d-moves): {len(result)}")
     # This should return 337 PL-spheres of dimension 4 with 9 vertices.
 
-    # Write result in a txt file.
-    with open("4 dimensional PL-spheres with 9 vertices.txt", "w") as f:
+    # Write result in txt files.
+    with open("d4_n9_all.txt", "w") as f:
         for index, item in enumerate(result):
             f.write(f"sphere_{index+1}={item.facets()}\n")
+    '''
+
+    d4_n9_all = [SimplicialComplex(facets) for facets in extract_lists_from_file('d4_n9_all.txt')]
+    print(f"all = {len(d4_n9_all)}")
+
+    finbow_neighborly_polytopal = [SimplicialComplex(facets) for facets in extract_lists_from_file('finbow_neighborly_polytopal.txt')] 
+    print(f"Length of Finbow's database = {len(finbow_neighborly_polytopal)}")
+
+    d4_n9_neighborly = []
+    d4_n9_neighborly_polytopal = []
+    d4_n9_neighborly_nonpolytopal = []
+    for index, sphere in enumerate(d4_n9_all):
+        if sphere.f_vector() == [1,9,36,74,75,30]:
+            d4_n9_neighborly.append((index,sphere))
+            polytopal = False
+            for polytopal_sphere in finbow_neighborly_polytopal:
+                if sphere.is_isomorphic(polytopal_sphere):
+                    polytopal = True
+                    d4_n9_neighborly_polytopal.append((index,sphere))
+                    break
+            if not polytopal:
+                d4_n9_neighborly_nonpolytopal.append((index,sphere))
+    
+    print(f"Neighborly = {len(d4_n9_neighborly)}")
+    print(f"Neighborly polytopal = {len(d4_n9_neighborly_polytopal)}")
+    print(f"Neighborly non-polytopal = {len(d4_n9_neighborly_nonpolytopal)}")
+
+    with open("d4_n9_neighborly.txt", "w") as f:
+        for index, item in d4_n9_neighborly:
+            f.write(f"sphere_{index+1}={item.facets()}\n")
+
+    with open("d4_n9_neighborly_polytopal.txt", "w") as f:
+        for index, item in d4_n9_neighborly_polytopal:
+            f.write(f"sphere_{index+1}={item.facets()}\n")
+
+    with open("d4_n9_neighborly_nonpolytopal.txt", "w") as f:
+        for index, item in d4_n9_neighborly_nonpolytopal:
+            f.write(f"sphere_{index+1}={item.facets()}\n")
+
+    '''
+    # Extract list of 126 neighbourly simplicial 5-polytopes with 9 vertices.
+    file_path = 'd4_n9_neighborly_polytopal.txt'
+    neighborly_polytopal_facet_lists = extract_lists_from_file(file_path)
+    print(f"There are {len(neighborly_polytopal_facet_lists)} polytopal neighbourly simplicial 5-polytopes with 9 vertices. Expected 126.")
+
+    # Extract neighbourly PL-spheres.
+    neighborly = []
+    with open("d4_n9_neighborly.txt", "w") as f:
+        for index, item in enumerate(result):
+            if item.f_vector() == [1,9,36,74,75,30]:
+                neighborly.append(item)
+                f.write(f"sphere_{index+1}={item.facets()}\n") 
+
+    print(f"There are {len(neighborly)} neighborly 4 dimensional PL-spheres with 9 vertices. Expected 139.")
+
+    # Remove neighbourly polytopal spheres.
+    neighborly_non_polytopal = neighborly.copy()
+
+    for facet_list in neighborly_polytopal_facet_lists:
+        P = SimplicialComplex(facet_list)
+        for sphere in neighborly:
+            if P.is_isomorphic(sphere):
+                neighborly_non_polytopal.remove(sphere)
+            break
+    print(f"There are {len(neighborly_non_polytopal)} neighbourly non-polytopal 4 dimensional PL-spheres with 9 vertices. Expected 13.")
+    '''
+    
