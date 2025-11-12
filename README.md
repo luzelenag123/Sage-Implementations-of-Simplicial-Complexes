@@ -1,4 +1,4 @@
-# Enumeration of PL Balls
+# Enumeration of PL Spheres
 
 This project is an on-going implementation of some of the algorithms described in "The Number of four dimensional PL spheres with nine vertices" using SageMath. Its main purpose is to make the list of four dimensional PL spheres with nine vertices easily available in a format suitable for use on SageMath and other programming languages to facilitate research around these objects. 
 
