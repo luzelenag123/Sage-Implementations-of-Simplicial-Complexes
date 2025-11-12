@@ -13,7 +13,7 @@ These tools are used to produce all simplicial complexes that are connected to d
 ## TO-DOs
 - Include a few formal definitions: Simplicial complex, PL-spheres, PL-manifold, bistellar flip.
 - Add more documentation about the datasets and the .sage files in README.md
-- Include proper research citations in README.md
+- Include proper research citations/attributions in README.md
 - Implement the functions in lexicographic_enumaration.sage, which are an implementation of Algorithm 4.4. 
 - Refactor datasets in their own folder.
 - Implement a function that checks if two complexes are PL-homeomorphic.
