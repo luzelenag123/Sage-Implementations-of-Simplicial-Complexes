@@ -1,4 +1,4 @@
-attach("bistellar_flip.sage")
+load("bistellar_flip.sage")
 
 if __name__ == "__main__":
 
@@ -15,7 +15,7 @@ if __name__ == "__main__":
             [4, 5, 6, 7, 9], [4, 5, 7, 8, 9], [5, 6, 7, 8, 9]]
     P = SimplicialComplex(facets)
     d4_n9_all = explore_flip_graph(P, [0,4])
-    print(f"Number of reachable complexes (without 0/d-moves): {len(result)}")
+    print(f"Number of reachable complexes (without 0/d-moves): {len(d4_n9_all)}")
     # This should return 337 PL-spheres of dimension 4 with 9 vertices.
 
     # Write result in txt files.
