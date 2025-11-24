@@ -1,4 +1,5 @@
 from collections import deque
+from collections import Counter
 import ast
 
 def bistellar_flip(K, F):
@@ -85,7 +86,7 @@ def find_and_flip(K, a):
     """
     # Iterate through all faces of dimension a
     for face in K.face_iterator():
-        if len(face) - 1 == a:  # dimension is size - 1
+        if face.dimension() == a:  # dimension is size - 1
             try:
                 new_complex = bistellar_flip(K, set(face))
                 return (set(face), new_complex)
@@ -114,6 +115,7 @@ def explore_flip_graph(K, excluded_types=[]):
 
     queue = deque([K])
     visited = [K]
+    #possible_h_vectors = set()
 
     while queue:
 
@@ -132,8 +134,9 @@ def explore_flip_graph(K, excluded_types=[]):
                 if not any(new_complex.is_isomorphic(V) for V in visited):
                     queue.append(new_complex)
                     visited.append(new_complex)
+                    #possible_h_vectors.add(tuple(new_complex.h_vector()))
                     print(f"Visited {len(visited)} PL-spheres so far")
-            
+    #print(possible_h_vectors)
     return visited
 
 def extract_lists_from_file(filepath):
@@ -164,7 +167,9 @@ def extract_lists_from_file(filepath):
                     print(f"Error parsing line: '{line.strip()}' - {e}")
     return extracted_data
 
+
 # Examples
+'''
 if __name__ == "__main__":
 
     d4_n9_all = [SimplicialComplex(facets) for facets in extract_lists_from_file('d4_n9_all.txt')]
@@ -179,6 +184,14 @@ if __name__ == "__main__":
     d4_n9_neighborly_nonpolytopal = [SimplicialComplex(facets) for facets in extract_lists_from_file('d4_n9_neighborly_nonpolytopal.txt')]
     print(f"neighborly non-polytopal 4-dimensional PL-sphere with 9 vertices = {len(d4_n9_neighborly_nonpolytopal)}")
 
+    i=0
+    for sphere in d4_n9_all:
+        m3 = sum(missing_face.dimension() == 3 for missing_face in sphere.minimal_nonfaces())
+        #print(m3)
+        if m3 == 5:
+            i+=1
+            print(sphere.f_vector())
+    print(i)
+'''
 
-    
     
